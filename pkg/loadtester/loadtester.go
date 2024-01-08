@@ -103,6 +103,8 @@ func (t *LoadTester) Start() error {
 		return nil
 	}
 
+	fmt.Println("LoadTester::Start")
+
 	identity := fmt.Sprintf("%s_%d", t.params.IdentityPrefix, t.params.Sequence)
 	t.room = lksdk.CreateRoom(&lksdk.RoomCallback{
 		ParticipantCallback: lksdk.ParticipantCallback{
@@ -172,6 +174,18 @@ func (t *LoadTester) PublishAudioTrack(name string) (string, error) {
 		return "", err
 	}
 	return p.SID(), nil
+}
+
+func (t *LoadTester) SetVideoIndex(index int) bool {
+	// DEBUG fmt.Println("LoadTester::SetVideoIndex ", index)
+	provider2.SetVideoIndex(index)
+	return true
+}
+
+func (t *LoadTester) SetSameSource(s bool) bool {
+	// DEBUG fmt.Println("LoadTester::SetSameSource ", s)
+	provider2.SetSameSource(s)
+	return true
 }
 
 func (t *LoadTester) PublishVideoTrack(name, resolution, codec string) (string, error) {

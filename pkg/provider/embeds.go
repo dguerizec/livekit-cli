@@ -98,10 +98,12 @@ var (
 	//go:embed resources
 	res embed.FS
 
-	videoSpecs [][]*videoSpec
-	videoIndex atomic.Int64
-	audioNames []string
-	audioIndex atomic.Int64
+	videoSpecs     [][]*videoSpec
+	videoIndex     atomic.Int64
+	baseVideoIndex atomic.Int64
+	sameSource     bool
+	audioNames     []string
+	audioIndex     atomic.Int64
 )
 
 func init() {
@@ -135,8 +137,21 @@ func randomVideoSpecsForCodec(videoCodec string) []*videoSpec {
 			filtered = append(filtered, specs)
 		}
 	}
-	chosen := int(videoIndex.Inc()) % len(filtered)
+	if !sameSource {
+		videoIndex.Inc()
+	}
+	chosen := int(videoIndex.Load()+baseVideoIndex.Load()) % len(filtered)
 	return filtered[chosen]
+}
+
+func SetSameSource(s bool) bool {
+	sameSource = s
+	return sameSource
+}
+
+func SetVideoIndex(index int) bool {
+	baseVideoIndex.Store(int64(index % len(videoSpecs)))
+	return true
 }
 
 func CreateVideoLoopers(resolution string, codecFilter string, simulcast bool) ([]VideoLooper, error) {
@@ -167,12 +182,14 @@ func CreateVideoLoopers(resolution string, codecFilter string, simulcast bool) (
 				return nil, err
 			}
 			loopers = append(loopers, looper)
+			// DEBUG fmt.Println("Playing h264:", spec.Name())
 		} else if spec.codec == vp8Codec {
 			looper, err := NewVP8VideoLooper(f, spec)
 			if err != nil {
 				return nil, err
 			}
 			loopers = append(loopers, looper)
+			// DEBUG fmt.Println("Playing vp8:", spec.Name())
 		}
 	}
 	return loopers, nil

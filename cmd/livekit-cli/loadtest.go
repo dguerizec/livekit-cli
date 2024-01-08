@@ -94,6 +94,14 @@ var LoadTestCommands = []*cli.Command{
 				Usage:  "runs set list of load test cases",
 				Hidden: true,
 			},
+			&cli.IntFlag{
+				Name:  "index",
+				Usage: "first video index to play",
+			},
+			&cli.BoolFlag{
+				Name:  "same-source",
+				Usage: "use only one video source for all tracks",
+			},
 		),
 	},
 }
@@ -146,6 +154,8 @@ func loadTest(cCtx *cli.Context) error {
 	params.VideoPublishers = cCtx.Int("video-publishers")
 	params.AudioPublishers = cCtx.Int("audio-publishers")
 	params.Subscribers = cCtx.Int("subscribers")
+	params.VideoIndex = cCtx.Int("index")
+	params.SameSource = cCtx.Bool("same-source")
 
 	test := loadtester.NewLoadTest(params)
 	return test.Run(ctx)

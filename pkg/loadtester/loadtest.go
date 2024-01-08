@@ -47,6 +47,8 @@ type Params struct {
 	NumPerSecond     float64
 	Simulcast        bool
 	SimulateSpeakers bool
+	VideoIndex       int
+	SameSource       bool
 
 	TesterParams
 }
@@ -260,6 +262,8 @@ func (t *LoadTest) run(ctx context.Context, params Params) (map[string]*testerSt
 		}
 
 		tester := NewLoadTester(testerParams)
+		tester.SetVideoIndex(params.VideoIndex)
+		tester.SetSameSource(params.SameSource)
 		testers = append(testers, tester)
 		if isVideoPublisher || isAudioPublisher {
 			publishers = append(publishers, tester)
